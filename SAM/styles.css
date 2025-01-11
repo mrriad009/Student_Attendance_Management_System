@@ -87,16 +87,33 @@ button:hover {
     background-color: #3949ab;
 }
 
-/* Paragraphs */
-p {
-    font-size: 18px;
-    line-height: 1.6;
-    margin: 15px 0;
-    transition: background-color 0.3s ease;
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    text-align: left;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-p:hover {
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #5c6bc0;
+    color: white;
+}
+
+td {
+    background-color: #f9f9f9;
+}
+
+tr:hover td {
     background-color: #f0f0f0;
+    cursor: pointer;
 }
 
 /* Strong Text */
