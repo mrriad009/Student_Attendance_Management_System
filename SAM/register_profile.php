@@ -4,10 +4,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database connection
-$host = 'localhost';  // Database host
-$username = 'root';   // Database username
-$password = '';       // Database password
-$database = 'student_attendance';  // Database name
+$host = 'localhost';  // Database host for localhost
+$username = 'root';   // Database username for localhost
+$password = '';       // Database password for localhost
+$database = 'student_attendance';  // Your database name
 
 $conn = new mysqli($host, $username, $password, $database);
 
@@ -16,8 +16,8 @@ if ($conn->connect_error) {
 }
 
 // Initialize variables
-$success_message = '';
-$error_message = '';
+$id = $name = $email = $department = '';
+$success_message = $error_message = '';
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -30,18 +30,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($id) || empty($name) || empty($email) || empty($department)) {
         $error_message = "All fields are required.";
     } else {
-        // Insert data into database
-        $sql = "INSERT INTO students (id, name, email, department) VALUES (?, ?, ?, ?)";
-        if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ssss", $id, $name, $email, $department);
-            if ($stmt->execute()) {
-                $success_message = "New student registered successfully!";
+        // Check if student ID already exists
+        $check_sql = "SELECT id FROM students WHERE id = ?";
+        if ($check_stmt = $conn->prepare($check_sql)) {
+            $check_stmt->bind_param("s", $id);
+            $check_stmt->execute();
+            $check_stmt->store_result();
+
+            if ($check_stmt->num_rows > 0) {
+                // Update existing student record
+                $update_sql = "UPDATE students SET name = ?, email = ?, department = ? WHERE id = ?";
+                if ($update_stmt = $conn->prepare($update_sql)) {
+                    $update_stmt->bind_param("ssss", $name, $email, $department, $id);
+                    if ($update_stmt->execute()) {
+                        $success_message = "Student profile updated successfully!";
+                    } else {
+                        $error_message = "Error updating student profile: " . $update_stmt->error;
+                    }
+                    $update_stmt->close();
+                } else {
+                    $error_message = "Error preparing update statement: " . $conn->error;
+                }
             } else {
-                $error_message = "Error: " . $stmt->error;
+                // Insert new student record
+                $insert_sql = "INSERT INTO students (id, name, email, department) VALUES (?, ?, ?, ?)";
+                if ($insert_stmt = $conn->prepare($insert_sql)) {
+                    $insert_stmt->bind_param("ssss", $id, $name, $email, $department);
+                    if ($insert_stmt->execute()) {
+                        $success_message = "New student registered successfully!";
+                    } else {
+                        $error_message = "Error registering student: " . $insert_stmt->error;
+                    }
+                    $insert_stmt->close();
+                } else {
+                    $error_message = "Error preparing insert statement: " . $conn->error;
+                }
             }
-            $stmt->close();
+            $check_stmt->close();
         } else {
-            $error_message = "Error preparing statement: " . $conn->error;
+            $error_message = "Error preparing check statement: " . $conn->error;
         }
     }
 }
@@ -52,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register New Student</title>
+    <title>Register Profile</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
     <style>
         /* General Styles */
@@ -139,23 +166,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* Messages */
-        .message {
+        .success-message {
+            color: #28a745;
             text-align: center;
             margin-bottom: 1rem;
-            padding: 0.8rem;
-            border-radius: 5px;
-        }
-
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
         .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            color: #dc3545;
+            text-align: center;
+            margin-bottom: 1rem;
         }
 
         /* Animations */
@@ -173,38 +193,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="container">
-        <h1>Register New Student</h1>
-
-        <!-- Display Success or Error Message -->
+        <h1>Register Profile</h1>
         <?php if (!empty($success_message)) : ?>
-            <div class="message success-message"><?php echo $success_message; ?></div>
+            <p class="success-message"><?php echo $success_message; ?></p>
         <?php endif; ?>
         <?php if (!empty($error_message)) : ?>
-            <div class="message error-message"><?php echo $error_message; ?></div>
+            <p class="error-message"><?php echo $error_message; ?></p>
         <?php endif; ?>
-
-        <!-- Registration Form -->
         <form method="POST" action="">
             <label for="id">Student ID:</label>
-            <input type="text" name="id" id="id" required>
+            <input type="text" name="id" id="id" value="<?php echo htmlspecialchars($id); ?>" required>
 
             <label for="name">Name:</label>
-            <input type="text" name="name" id="name" required>
+            <input type="text" name="name" id="name" value="<?php echo htmlspecialchars($name); ?>" required>
 
             <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required>
+            <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($email); ?>" required>
 
             <label for="department">Department:</label>
             <select name="department" id="department" required>
                 <option value="">--Select Department--</option>
-                <option value="Computer Science">Computer Science</option>
-                <option value="Electrical Engineering">Electrical Engineering</option>
-                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Computer Science" <?php echo ($department == 'Computer Science' ? 'selected' : ''); ?>>Computer Science</option>
+                <option value="Electrical Engineering" <?php echo ($department == 'Electrical Engineering' ? 'selected' : ''); ?>>Electrical Engineering</option>
+                <option value="Mechanical Engineering" <?php echo ($department == 'Mechanical Engineering' ? 'selected' : ''); ?>>Mechanical Engineering</option>
             </select>
 
-            <button type="submit">Register</button>
+            <button type="submit">Submit</button>
         </form>
-
         <a href="index.php">Back to Home</a>
     </div>
 </body>
