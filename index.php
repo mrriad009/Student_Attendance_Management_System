@@ -11,8 +11,12 @@ $database = 'student_attendance';  // Database name
 
 $conn = new mysqli($host, $username, $password, $database);
 
+$conn = new mysqli($host, $username, $password, $database);
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
+} else {
+    echo "Database connection successful!<br>"; // Debug statement
 }
 
 // Initialize variables
@@ -26,7 +30,7 @@ $department_results = [];
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
     $student_id = $_POST['student_id'];
 
-    // Query to search for student by ID
+    // Query to search for student by ID and fetch attendance details
     $sql = "SELECT s.id, s.name, s.email, s.department, a.total_classes, a.present, a.absent, a.percentage
             FROM students s
             JOIN attendance a ON s.id = a.student_id
@@ -35,8 +39,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("s", $student_id);
         $stmt->execute();
-        $stmt->bind_result($id, $name, $email, $department, $total_classes, $present, $absent, $percentage);
-        if ($stmt->fetch()) {
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($id, $name, $email, $department, $total_classes, $present, $absent, $percentage);
+            $stmt->fetch();
             $search_results = [
                 'id' => $id,
                 'name' => $name,
@@ -246,6 +253,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['department'])) {
             <button type="submit" class="btn">Search</button>
         </form>
 
+        <!-- Display Search Results -->
+        <?php if (!empty($search_results)) : ?>
+            <div class="search-results">
+                <h3>Search Results</h3>
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Total Classes</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Attendance (%)</th>
+                        <th>Action</th>
+                    </tr>
+                    <tr>
+                        <td><?php echo htmlspecialchars($search_results['id']); ?></td>
+                        <td><?php echo htmlspecialchars($search_results['name']); ?></td>
+                        <td><?php echo htmlspecialchars($search_results['department']); ?></td>
+                        <td><?php echo htmlspecialchars($search_results['total_classes']); ?></td>
+                        <td><?php echo htmlspecialchars($search_results['present']); ?></td>
+                        <td><?php echo htmlspecialchars($search_results['absent']); ?></td>
+                        <td><?php echo htmlspecialchars($search_results['percentage']); ?>%</td>
+                        <td>
+                            <a href="profile.php?id=<?php echo htmlspecialchars($search_results['id']); ?>" class="view-profile-btn">View Profile</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        <?php elseif (isset($error_message)) : ?>
+            <p class="error-message"><?php echo $error_message; ?></p>
+        <?php endif; ?>
+
         <!-- Department Filter Form -->
         <form method="POST" action="">
             <label for="department"><h3>Select Department: </h3></label>
@@ -257,33 +297,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['department'])) {
             </select>
             <button type="submit" class="btn">Check Department</button>
         </form>
-
-        <!-- Display Search Results -->
-        <?php if (!empty($search_results)) : ?>
-            <div class="search-results">
-                <h3>Search Results</h3>
-                <table>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Department</th>
-                        <th>Attendance (%)</th>
-                        <th>Action</th>
-                    </tr>
-                    <tr>
-                        <td><?php echo htmlspecialchars($search_results['id']); ?></td>
-                        <td><?php echo htmlspecialchars($search_results['name']); ?></td>
-                        <td><?php echo htmlspecialchars($search_results['department']); ?></td>
-                        <td><?php echo htmlspecialchars($search_results['percentage']); ?>%</td>
-                        <td>
-                            <a href="profile.php?id=<?php echo htmlspecialchars($search_results['id']); ?>" class="view-profile-btn">View Profile</a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        <?php elseif (isset($error_message)) : ?>
-            <p class="error-message"><?php echo $error_message; ?></p>
-        <?php endif; ?>
 
         <!-- Display Department Results -->
         <?php if (!empty($department_results)) : ?>

@@ -21,7 +21,7 @@ $error_message = '';
 
 // Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = $_POST['id'];
+    $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
     $name = $_POST['name'];
     $email = $_POST['email'];
     $department = $_POST['department'];
@@ -30,18 +30,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($id) || empty($name) || empty($email) || empty($department)) {
         $error_message = "All fields are required.";
     } else {
-        // Insert data into database
-        $sql = "INSERT INTO students (id, name, email, department) VALUES (?, ?, ?, ?)";
-        if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("ssss", $id, $name, $email, $department);
-            if ($stmt->execute()) {
-                $success_message = "New student registered successfully!";
+        // Check if id already exists
+        $sql = "SELECT id FROM students WHERE id = ?";
+        $stmt_check = $conn->prepare($sql);
+        if ($stmt_check) {
+            $stmt_check->bind_param("i", $id);
+            $stmt_check->execute();
+            $stmt_check->store_result();
+
+            if ($stmt_check->num_rows > 0) {
+                $error_message = "Student ID already exists.";
             } else {
-                $error_message = "Error: " . $stmt->error;
+                // Proceed with insertion
+                $conn->begin_transaction();
+
+                // Insert into students table
+                $sql = "INSERT INTO students (id, name, email, department) VALUES (?, ?, ?, ?)";
+                $stmt_insert_student = $conn->prepare($sql);
+                if ($stmt_insert_student) {
+                    $stmt_insert_student->bind_param("isss", $id, $name, $email, $department);
+
+                    if ($stmt_insert_student->execute()) {
+                        // Insert into attendance table
+                        $sql = "INSERT INTO attendance (student_id, total_classes, present, absent, percentage) VALUES (?, 0, 0, 0, 0)";
+                        $stmt_insert_attendance = $conn->prepare($sql);
+                        if ($stmt_insert_attendance) {
+                            $stmt_insert_attendance->bind_param("i", $id);
+
+                            if ($stmt_insert_attendance->execute()) {
+                                $conn->commit();
+                                $success_message = "New student registered successfully!";
+                            } else {
+                                $conn->rollback();
+                                $error_message = "Error inserting into attendance: " . $stmt_insert_attendance->error;
+                            }
+                            $stmt_insert_attendance->close();
+                        } else {
+                            $conn->rollback();
+                            $error_message = "Error preparing attendance statement: " . $conn->error;
+                        }
+                    } else {
+                        $conn->rollback();
+                        $error_message = "Error inserting into students: " . $stmt_insert_student->error;
+                    }
+                    $stmt_insert_student->close();
+                } else {
+                    $conn->rollback();
+                    $error_message = "Error preparing students statement: " . $conn->error;
+                }
             }
-            $stmt->close();
+            $stmt_check->close(); // Close the initial SELECT statement
         } else {
-            $error_message = "Error preparing statement: " . $conn->error;
+            $error_message = "Error preparing SELECT statement: " . $conn->error;
         }
     }
 }
