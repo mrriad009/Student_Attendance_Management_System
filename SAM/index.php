@@ -1,9 +1,9 @@
 <?php
-// Connect to the database
-$host = 'localhost';
-$username = 'root';
-$password = '';
-$database = 'student_attendance';
+// Database connection
+$host = 'localhost';  // Database host for localhost
+$username = 'root';   // Database username for localhost
+$password = '';       // Database password for localhost
+$database = 'student_attendance';  // Your database name
 
 $conn = new mysqli($host, $username, $password, $database);
 
@@ -22,7 +22,6 @@ $student_id = '';  // Initialize $student_id
 if (isset($_POST['student_id'])) {
     $student_id = $_POST['student_id'];
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -32,62 +31,15 @@ if (isset($_POST['student_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Attendance Management</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            background-color: #f0f8ff;
-            transition: background-color 0.5s ease;
-        }
-        h1, h3 {
-            color: #333;
-            transition: color 0.5s ease;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            transition: transform 0.5s ease;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #ddd;
-            transform: scale(1.02);
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            transition: border-color 0.3s ease;
-        }
-        select:focus {
-            border-color: #4CAF50;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
         <h1>Welcome to Student Attendance Management System</h1>
+        
+        <!-- Add the Register Button -->
+        <a href="register.php">
+            <button>Register New Student</button>
+        </a>
 
         <!-- Student Search Form -->
         <form method="POST" action="">
