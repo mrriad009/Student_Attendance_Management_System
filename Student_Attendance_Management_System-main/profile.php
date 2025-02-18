@@ -18,10 +18,15 @@ if (!$student_id) {
 }
 
 // Fetch student and attendance data
-$sql = "SELECT s.name, s.email, s.department, a.total_classes, a.present, a.absent, a.percentage
+$sql = "SELECT s.name, s.email, s.department, 
+               COUNT(a.class_date) AS total_classes, 
+               SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present, 
+               SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) AS absent, 
+               (SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / COUNT(a.class_date)) * 100 AS percentage
         FROM students s
-        JOIN attendance a ON s.id = a.student_id
+        JOIN attendance_record a ON s.id = a.student_id
         WHERE s.id = ?";
+
 if ($stmt = $conn->prepare($sql)) {
     $stmt->bind_param("i", $student_id);
     $stmt->execute();

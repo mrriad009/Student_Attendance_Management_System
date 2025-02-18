@@ -31,10 +31,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['student_id'])) {
     $student_id = $_POST['student_id'];
 
     // Query to search for student by ID and fetch attendance details
-    $sql = "SELECT s.id, s.name, s.email, s.department, a.total_classes, a.present, a.absent, a.percentage
+    $sql = "SELECT s.id, s.name, s.email, s.department, 
+                   COUNT(a.class_date) AS total_classes, 
+                   SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present, 
+                   SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) AS absent, 
+                   FLOOR((SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / COUNT(a.class_date)) * 100) AS percentage
             FROM students s
-            JOIN attendance a ON s.id = a.student_id
-            WHERE s.id = ?";
+            JOIN attendance_record a ON s.id = a.student_id
+            WHERE s.id = ?
+            GROUP BY s.id, s.name, s.email, s.department";
 
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("s", $student_id);
@@ -68,11 +73,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['department'])) {
     $department = $_POST['department'];
 
     // Query to get students from the selected department, sorted by attendance percentage
-    $sql = "SELECT s.id, s.name, s.email, s.department, a.total_classes, a.present, a.absent, a.percentage
+    $sql = "SELECT s.id, s.name, s.email, s.department, 
+                   COUNT(a.class_date) AS total_classes, 
+                   SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present, 
+                   SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) AS absent, 
+                   FLOOR((SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / COUNT(a.class_date)) * 100) AS percentage
             FROM students s
-            JOIN attendance a ON s.id = a.student_id
+            JOIN attendance_record a ON s.id = a.student_id
             WHERE s.department = ?
-            ORDER BY a.percentage DESC";
+            GROUP BY s.id, s.name, s.email, s.department
+            ORDER BY percentage DESC";
 
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("s", $department);
@@ -154,6 +164,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['department'])) {
         .btn:hover {
             background: #2575fc;
             transform: translateY(-2px);
+        }
+
+        .admin-panel-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
 
         /* Forms */
@@ -244,6 +260,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['department'])) {
     <div class="container">
         <h1>Welcome to Student Attendance Management System</h1>
         
+        <!-- Add the Admin Panel Button -->
+        <a href="admin_panel.php" class="btn admin-panel-btn">Admin Panel</a>
         <!-- Add the Register Button -->
         <a href="register.php" class="btn">Register New Student</a>
 
