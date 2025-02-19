@@ -74,10 +74,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['department'])) {
 
     // Query to get students from the selected department, sorted by attendance percentage
     $sql = "SELECT s.id, s.name, s.email, s.department, 
-                   COUNT(a.class_date) AS total_classes, 
+                   21 AS total_classes, 
                    SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) AS present, 
                    SUM(CASE WHEN a.status = 'Absent' THEN 1 ELSE 0 END) AS absent, 
-                   FLOOR((SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / COUNT(a.class_date)) * 100) AS percentage
+                   FLOOR((SUM(CASE WHEN a.status = 'Present' THEN 1 ELSE 0 END) / 21) * 100) AS percentage
             FROM students s
             JOIN attendance_record a ON s.id = a.student_id
             WHERE s.department = ?

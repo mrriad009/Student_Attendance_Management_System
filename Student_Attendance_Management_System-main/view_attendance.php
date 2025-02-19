@@ -27,11 +27,11 @@ if (isset($_POST['update_database'])) {
     }
 }
 
-// Fetch updated attendance records with dynamic calculations
+// Fetch updated attendance records with fixed total classes (21)
 $attendance_sql = "SELECT students.id, students.name, 
-                          COUNT(attendance_record.class_date) AS total_classes, 
+                          21 AS total_classes, 
                           SUM(CASE WHEN attendance_record.status = 'Present' THEN 1 ELSE 0 END) AS present, 
-                          (SUM(CASE WHEN attendance_record.status = 'Present' THEN 1 ELSE 0 END) / COUNT(attendance_record.class_date)) * 100 AS percentage 
+                          (SUM(CASE WHEN attendance_record.status = 'Present' THEN 1 ELSE 0 END) / 21) * 100 AS percentage 
                    FROM attendance_record 
                    JOIN students ON attendance_record.student_id = students.id 
                    GROUP BY students.id, students.name";
