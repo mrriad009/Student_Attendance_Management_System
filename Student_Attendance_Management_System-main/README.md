@@ -1,7 +1,16 @@
 
 # Student Attendance Management System
+**Prepared by**:  
+Md Mahamudul Islam Riad  
+ID : 11220320898
+
+Suraya Khatun Hasiba  
+ID : 11220321003  
+
+Department of Computer Science and Engineering  
 **Course Title:** Database Management Systems Lab  
 **Course Code:** CSE 3104
+**Date**: 1.12.2025
 
 ## Objective
 The Student Attendance Management System aims to streamline the process of tracking and managing student attendance in educational institutions. It provides an efficient, automated, and user-friendly platform for recording attendance, generating reports, and analyzing student performance based on attendance data.
@@ -55,8 +64,4 @@ The future development of the Student Attendance Management System can focus on 
 ## Conclusion
 The Student Attendance Management System is a robust, scalable, and user-friendly solution for tracking and managing student attendance. It leverages modern web technologies and a well-structured database to provide accurate and efficient attendance tracking. By digitalizing the attendance process, the system helps educational institutions focus on their core mission of delivering quality education.
 
-**Prepared by**:  
-Md Mahamudul Islam Riad || Suraya Khatun Hasiba  
-11220320898 || 11220321003  
-Department of Computer Science and Engineering  
-**Date**: 1.12.2025
+
