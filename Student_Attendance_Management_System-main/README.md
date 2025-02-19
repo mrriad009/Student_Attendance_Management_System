@@ -10,7 +10,7 @@ ID : 11220321003
 Department of Computer Science and Engineering  
 **Course Title:** Database Management Systems Lab  
 **Course Code:** CSE 3104
-**Date**: 1.12.2025
+**Date**: 02.19.2025
 
 ## Objective
 The Student Attendance Management System aims to streamline the process of tracking and managing student attendance in educational institutions. It provides an efficient, automated, and user-friendly platform for recording attendance, generating reports, and analyzing student performance based on attendance data.

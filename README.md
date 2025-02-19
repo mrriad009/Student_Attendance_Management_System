@@ -1,7 +1,17 @@
 
 # Student Attendance Management System
+**Prepared by**:  
+Md Mahamudul Islam Riad  
+ID : 11220320898
+
+Suraya Khatun Hasiba  
+ID : 11220321003  
+
+Department of Computer Science and Engineering  
 **Course Title:** Database Management Systems Lab  
 **Course Code:** CSE 3104
+**Date**: 02.19.2025
+
 
 ## Objective
 The Student Attendance Management System aims to streamline the process of tracking and managing student attendance in educational institutions. It provides an efficient, automated, and user-friendly platform for recording attendance, generating reports, and analyzing student performance based on attendance data.
@@ -152,9 +162,3 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 
 This project is licensed under the MIT License.
 
-
-**Prepared by**:  
-Md Mahamudul Islam Riad || Suraya Khatun Hasiba  
-11220320898 || 11220321003  
-Department of Computer Science and Engineering  
-**Date**: 1.12.2025
