@@ -59,10 +59,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                             if ($stmt_insert_attendance->execute()) {
                                 // Insert into attendance_record table
-                                $sql = "INSERT INTO attendance_record (student_id, name, total_classes, present, absent, percentage) VALUES (?, ?, 0, 0, 0, 0)";
+                                $sql = "INSERT INTO attendance_record (student_id, class_date, status) VALUES (?, NOW(), '0')";
                                 $stmt_insert_attendance_record = $conn->prepare($sql);
                                 if ($stmt_insert_attendance_record) {
-                                    $stmt_insert_attendance_record->bind_param("is", $id, $name);
+                                    $stmt_insert_attendance_record->bind_param("i", $id);
 
                                     if ($stmt_insert_attendance_record->execute()) {
                                         $conn->commit();
